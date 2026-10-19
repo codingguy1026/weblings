@@ -1,0 +1,1 @@
+"""Weblings shared creature game."""
