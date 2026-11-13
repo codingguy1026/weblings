@@ -12,10 +12,12 @@ type Settings = {
 };
 
 export function drawingIdSettings(): Settings | null {
-  if (process.env.NEXT_PUBLIC_DRAWING_SSO_ENABLED !== "true") return null;
+  // Prefer server-only environment variables so a built Docker image can be configured at runtime.
+  const enabled = process.env.DRAWING_SSO_ENABLED ?? process.env.NEXT_PUBLIC_DRAWING_SSO_ENABLED;
+  if (enabled !== "true") return null;
   const originText = process.env.DRAWING_SSO_ORIGIN;
-  const supabaseText = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseText = process.env.DRAWING_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const publishableKey = process.env.DRAWING_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const clientId = process.env.DRAWING_SSO_CLIENT_ID;
   if (!originText || !supabaseText || !publishableKey || !clientId) return null;
 
