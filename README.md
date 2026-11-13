@@ -79,14 +79,16 @@ Dockerfile
 4. `.env.example`을 참고해 **저장소에 커밋하지 않는** `.env.local` 또는 배포 환경에 설정합니다.
 
 ```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://your-existing-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+DRAWING_SUPABASE_URL=https://your-existing-project.supabase.co
+DRAWING_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
 DRAWING_SSO_CLIENT_ID=public-client-id-for-drawing-chat
 DRAWING_SSO_ORIGIN=https://your-chat-domain.example
-NEXT_PUBLIC_DRAWING_SSO_ENABLED=true
+DRAWING_SSO_ENABLED=true
 ```
 
-여기에는 **Supabase service_role/secret 키나 OAuth client secret이 필요하지 않습니다.** OAuth 사용을 시작하기 전에는 마지막 값을 `false`로 유지하세요. `true`라도 설정이 부족하면 연결하지 않고 안내 메시지만 보여줍니다.
+서버 전용 변수 `DRAWING_*`를 우선 사용하므로 Docker 이미지가 빌드된 이후에도 실행 환경에서 설정을 바꿀 수 있습니다. 다른 Drawing 서비스와 호환되는 `NEXT_PUBLIC_*` 환경 변수도 읽지만, 빌드 시 값이 고정될 수 있어 런타임 설정에는 권장하지 않습니다.
+
+여기에는 **Supabase service_role/secret 키나 OAuth client secret이 필요하지 않습니다.** OAuth 사용을 시작하기 전에는 `DRAWING_SSO_ENABLED`를 `false`로 유지하세요. `true`여도 설정이 부족하면 연결하지 않고 안내 메시지만 보여줍니다.
 
 ### 확인 절차
 
