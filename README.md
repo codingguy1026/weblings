@@ -8,7 +8,7 @@ Drawing Chat은 개인 메신저와 커뮤니티 Station을 하나로 묶는 Dra
 
 - **Next.js 16 (App Router)** + React 19 + TypeScript
 - 전역 CSS로 관리하는 반응형 UI, 라이트/다크 테마
-- 현재는 **브라우저 전용 데모**입니다. 실제 서버 메시지, Drawing ID 인증, 사용자 동기화, 알림, 그룹 대화 등은 아직 구현되지 않았습니다.
+- 현재 친구·대화·Station은 **브라우저 전용 데모**입니다. Drawing ID 인증 코드가 추가되었으나 관리자 OAuth 설정 전에는 비활성화됩니다. 실제 서버 메시지, 사용자 동기화, 알림, 그룹 대화 등은 아직 구현되지 않았습니다.
 
 ## 🚀 GitHub Codespaces에서 실행
 
@@ -59,15 +59,55 @@ package.json
 Dockerfile
 ```
 
+## 🔐 Drawing ID 통합 로그인 · v0.3
+
+**코드 구현:** 중앙 Drawing 포털에서 사용 중인 Supabase Auth 프로젝트를 OAuth 2.1 공급자로 연결하는 방식입니다. 드챗은 **별도 Public OAuth Client**가 되어 인증 정보와 세션을 앱별로 분리합니다.
+
+- `GET /api/drawing-id/start`: 서버가 무작위 `state`, PKCE verifier/challenge를 생성하고 중앙 Supabase OAuth 인증 페이지로 이동합니다.
+- `GET /api/drawing-id/callback`: 서버에서 state와 PKCE 코드를 검증하고 토큰을 교환합니다. 토큰은 로그인 결과 URL이나 UI JSON에 노출되지 않습니다.
+- `GET /api/drawing-id/me`: 서버가 Supabase `auth.getUser()`로 실제 사용자를 확인한 뒤 안전한 최소 프로필 정보만 반환합니다.
+- `POST /api/drawing-id/logout`: 동일 출처 요청만 허용하고 **드챗의 로컬 세션**을 정리합니다.
+- **더보기 → Drawing ID**에서 로그인 여부 확인, 중앙 로그인 시작, 이름 표시, 로그아웃이 가능합니다.
+
+### 배포 전에 해야 하는 관리자 설정
+
+중앙 Drawing 포털의 [SSO 배포 체크리스트](https://github.com/codingguy1026/Drawing/blob/main/docs/sso-setup.md)에 따라:
+
+1. 기존 Drawing ID가 사용하는 **동일한 Supabase Auth 프로젝트**에서 OAuth Server를 켜고, 중앙 Drawing의 동의 페이지 경로를 `/oauth/consent`로 설정합니다.
+2. **OAuth Apps → Add a new client**에서 이름을 **Drawing Chat**, 유형을 **Public (PKCE)** 으로 새로 등록합니다. Verse, Music 등의 기존 클라이언트 ID를 재사용하지 않습니다.
+3. 드챗의 **실제 배포 원본 URL**이 `https://chat.example.com`이라면 등록된 Redirect URI를 정확히 `https://chat.example.com/api/drawing-id/callback`으로 설정합니다. Codespaces에서 실험할 때는 5173 포트의 고정 HTTPS 전달 주소를 사용하고 변경될 때마다 등록 URI를 확인해야 합니다.
+4. `.env.example`을 참고해 **저장소에 커밋하지 않는** `.env.local` 또는 배포 환경에 설정합니다.
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-existing-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+DRAWING_SSO_CLIENT_ID=public-client-id-for-drawing-chat
+DRAWING_SSO_ORIGIN=https://your-chat-domain.example
+NEXT_PUBLIC_DRAWING_SSO_ENABLED=true
+```
+
+여기에는 **Supabase service_role/secret 키나 OAuth client secret이 필요하지 않습니다.** OAuth 사용을 시작하기 전에는 마지막 값을 `false`로 유지하세요. `true`라도 설정이 부족하면 연결하지 않고 안내 메시지만 보여줍니다.
+
+### 확인 절차
+
+- `npm install && npm run typecheck && npm run build` 후 `npm run dev`
+- 첫 방문에는 **더보기 → Drawing ID → Drawing ID로 계속하기** 버튼이 정상 표시되는지 확인
+- 중앙 Drawing ID에서 로그인하고 권한 요청을 승인한 뒤 드챗으로 복귀하여 실제 프로필이 표시되는지 확인
+- 인증 거절, 다른 `state`, 만료된 코드는 연결되지 않아야 함
+- 새로고침 후 로그인 유지, 로그아웃 후 `/api/drawing-id/me`에서 `user: null`, 다른 Drawing 서비스 세션은 영향 없음
+- 다른 계정으로 로그인하여 이전 사용자의 정보가 남지 않는지 확인
+
+**주의:** 중앙 OAuth Server의 활성화와 클라이언트 등록은 GitHub 코드만으로 수행되지 않습니다. 현재 중앙 Drawing의 공개 문서에는 관리자 설정/실사용 검증이 미완료라고 기록되어 있습니다. **실제 인증 성공 여부는 관리자 설정과 별도 브라우저 검증 이후에만 확정할 수 있습니다.**
+
 ## 🔐 향후 개발 순서
 
-1. Drawing ID 인증 시스템 검토 및 안전한 로그인 연동
+1. 중앙 OAuth 관리자 설정 및 브라우저에서 실제 로그인·로그아웃 검증
 2. 개인 사용자와 실제 친구 관계 데이터 모델
 3. 서버의 메시지 저장, 구독 및 권한 검사
 4. 차단·신고·스팸 대응을 포함한 기본 안전 기능
 5. Station 멤버십과 Drawing Verse Universe 연결
 
-**중요:** 이 코드는 실제 대화 암호화나 보안이 구현된 메신저가 아니라 UI 시제품입니다. Drawing ID로 로그인할 수 있다고 표시하지 마세요.
+**중요:** 인증 코드는 준비되었지만 관리자 설정과 실사용 검증 전에는 성공을 보장하지 않습니다. 채팅과 친구 데이터는 계속 데모이며 메시지 암호화가 구현된 메신저가 아닙니다.
 
 ## 🌱 기존 Weblings 코드
 
