@@ -4,6 +4,22 @@
 
 과거 카카오톡의 단순하고 익숙한 친구·채팅 목록을 참고하되, Drawing 고유의 네이비·화이트 디자인을 적용했습니다. 공개 소셜 피드를 채팅 화면에 강제로 섞지 않고 **친구 / 채팅 / Station / 더보기**를 분리합니다.
 
+## 🧑‍💻 Codespaces에서 바로 실행하기
+
+**2026-11-13 업데이트:** `package.json`과 설치가 필요 없는 Node.js 미리보기 서버가 추가되었습니다. Codespaces 터미널에서 다음 명령으로 실행합니다.
+
+```bash
+cd /workspaces/weblings
+git pull
+npm run dev
+```
+
+출력되는 `http://localhost:5173` 주소 또는 Codespaces의 **Ports → 5173 → Open in Browser**로 화면을 엽니다. `drawing-chat` 폴더 안에서도 `npm run dev`가 가능합니다. 외부 패키지 의존성이 없어 `npm install`은 필요하지 않습니다.
+
+이전에 `npm i`를 실행하다 **로컬에 빈 `package.json`을 생성했다면**, `git pull` 전에 그 빈 파일을 백업하거나 치워 주세요. 그렇지 않으면 Git이 새로 추가된 올바른 `package.json`을 받아오지 못할 수 있습니다.
+
+서버는 개발용이며 HTML 미리보기만 제공하고 실제 채팅 서버나 Drawing ID 로그인은 제공하지 않습니다.
+
 ## ▶ 실행
 
 저장소 최상단의 `index.html`을 웹 브라우저에서 열면 됩니다. 별도 설치나 패키지 빌드가 필요 없는 정적 HTML·CSS·JavaScript 시제품입니다.
