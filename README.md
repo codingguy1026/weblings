@@ -1,54 +1,76 @@
 # 💬 Drawing Chat
 
-**Drawing 생태계의 클래식 메신저 UI 시제품**
+**사람과 연결되고, 관심사로 모이다.**
 
-과거 카카오톡의 단순하고 익숙한 친구·채팅 목록을 참고하되, Drawing 고유의 네이비·화이트 디자인을 적용했습니다. 공개 소셜 피드를 채팅 화면에 강제로 섞지 않고 **친구 / 채팅 / Station / 더보기**를 분리합니다.
+Drawing Chat은 개인 메신저와 커뮤니티 Station을 하나로 묶는 Drawing 생태계의 웹 메신저 프로젝트입니다. 익숙한 클래식 메신저 탐색 구조를 참고하되, Drawing 고유의 네이비·화이트 스타일로 구현합니다.
 
-## 🧑‍💻 Codespaces에서 바로 실행하기
+## 🏗️ 기술 구성
 
-**2026-11-13 업데이트:** `package.json`과 설치가 필요 없는 Node.js 미리보기 서버가 추가되었습니다. Codespaces 터미널에서 다음 명령으로 실행합니다.
+- **Next.js 16 (App Router)** + React 19 + TypeScript
+- 전역 CSS로 관리하는 반응형 UI, 라이트/다크 테마
+- 현재는 **브라우저 전용 데모**입니다. 실제 서버 메시지, Drawing ID 인증, 사용자 동기화, 알림, 그룹 대화 등은 아직 구현되지 않았습니다.
+
+## 🚀 GitHub Codespaces에서 실행
+
+**Node.js 20.9 이상**을 사용하세요. 저장소 최상단에서 실행합니다.
 
 ```bash
 cd /workspaces/weblings
 git pull
+npm install
 npm run dev
 ```
 
-출력되는 `http://localhost:5173` 주소 또는 Codespaces의 **Ports → 5173 → Open in Browser**로 화면을 엽니다. `drawing-chat` 폴더 안에서도 `npm run dev`가 가능합니다. 외부 패키지 의존성이 없어 `npm install`은 필요하지 않습니다.
+Codespaces에서 **Ports → 5173 → Open in Browser**를 선택하거나 개발 환경의 `http://localhost:5173`으로 접속하세요.
 
-이전에 `npm i`를 실행하다 **로컬에 빈 `package.json`을 생성했다면**, `git pull` 전에 그 빈 파일을 백업하거나 치워 주세요. 그렇지 않으면 Git이 새로 추가된 올바른 `package.json`을 받아오지 못할 수 있습니다.
+- `npm run dev`: Next.js 개발 서버 (포트 5173)
+- `npm run build`: 프로덕션 빌드
+- `npm run start`: 프로덕션 서버 (포트 3000, 빌드 후 실행)
+- `npm run typecheck`: TypeScript 검사
 
-서버는 개발용이며 HTML 미리보기만 제공하고 실제 채팅 서버나 Drawing ID 로그인은 제공하지 않습니다.
+`drawing-chat` 폴더에서 `npm run dev`를 실행해도 최상단 Next.js 프로젝트의 개발 서버를 실행하도록 연결해 두었습니다.
 
-## ▶ 실행
+## 🧭 화면 구성
 
-저장소 최상단의 `index.html`을 웹 브라우저에서 열면 됩니다. 별도 설치나 패키지 빌드가 필요 없는 정적 HTML·CSS·JavaScript 시제품입니다.
+| 탭 | 역할 |
+| --- | --- |
+| 친구 | 간결한 세로 친구 목록 및 1:1 대화로 이동 |
+| 채팅 | 최근 대화 목록, Enter 전송 / Shift+Enter 줄바꿈 |
+| Station | 독립적인 관심사 채널 탐색 및 데모 참여 |
+| 더보기 | 라이트/다크 테마, 데모 데이터 초기화 |
 
-- 홈 화면: [index.html](./index.html)
-- 동일한 시제품의 독립 폴더: [drawing-chat/](./drawing-chat/)
-- 상세 기능/주의사항: [drawing-chat/README.md](./drawing-chat/README.md)
+가상의 친구·Station과 메시지를 사용하며, 사용자가 입력한 메시지는 **현재 브라우저의 localStorage에만 저장**됩니다. 비밀번호나 개인정보를 입력하지 마세요.
 
-## ✨ 현재 구현된 시연 기능
+## 📁 프로젝트 구조
 
-- 친구와 최근 채팅 목록, 가상 대화 열기, 목록 검색
-- 메시지 전송 체험과 브라우저의 로컬 저장소 기록
-- 주제별 Station 채널과 참여하기 시연
-- 데스크톱 사이드바 및 모바일 하단 탐색
-- 라이트/다크 테마, 데모 데이터 초기화
-- HTML 출력 시 사용자 입력 이스케이프 처리
+```text
+app/
+  layout.tsx          # HTML 셸, 메타데이터, 전역 CSS
+  page.tsx            # 메인 화면 (/)
+  drawing-chat/
+    page.tsx          # 보조 진입 경로 (/drawing-chat)
+  globals.css         # 공통 레이아웃 / 모바일 UI / 테마
+components/
+  chat-app.tsx        # React 클라이언트 화면과 데모 인터랙션
+lib/
+  demo.ts             # 화면용 가상 데이터와 TypeScript 타입
+next.config.ts
+package.json
+Dockerfile
+```
 
-> **주의:** 실제 Drawing ID 인증이나 다른 사람과의 실시간 대화는 아직 지원하지 않습니다. 모든 친구·채널 데이터는 예시이며, 입력한 메시지는 본인 브라우저에만 보관됩니다. 비밀번호나 개인정보를 입력하지 마세요.
+## 🔐 향후 개발 순서
 
-## 🎯 다음 개발 순서
+1. Drawing ID 인증 시스템 검토 및 안전한 로그인 연동
+2. 개인 사용자와 실제 친구 관계 데이터 모델
+3. 서버의 메시지 저장, 구독 및 권한 검사
+4. 차단·신고·스팸 대응을 포함한 기본 안전 기능
+5. Station 멤버십과 Drawing Verse Universe 연결
 
-1. 기존 Drawing ID 인증 구조 확인 후 안전하게 연결
-2. 사용자별 친구 관계 및 1:1 채팅 데이터 모델 설계
-3. 실시간 데이터 저장·접근 권한·차단 및 신고 기능 구현
-4. Station 멤버십/채널 관리
-5. 비공개 테스트와 서비스 운영 정책 정리
+**중요:** 이 코드는 실제 대화 암호화나 보안이 구현된 메신저가 아니라 UI 시제품입니다. Drawing ID로 로그인할 수 있다고 표시하지 마세요.
 
-## 🌱 기존 Weblings 봇 파일에 대하여
+## 🌱 기존 Weblings 코드
 
-이 저장소에는 원래 **Discord 협동 생물 육성 봇 Weblings** 코드(`bot.py`, `weblings/`, `tests/`, `Dockerfile` 등)가 포함되어 있습니다. 실수로 기존 기능이나 배포를 파괴하지 않도록 이 파일들은 현재 그대로 보존했습니다.
+이 저장소에는 이전 Discord 협동 육성 봇 Weblings 소스(`bot.py`, `weblings/` 등)가 남아 있습니다. 삭제하지 않고 보존했지만, **최상위 Dockerfile은 이제 Next.js Drawing Chat을 빌드하고 실행**하도록 변경되었습니다. 예전 Discord 봇 배포와 동시에 운영하려면 서비스/도커 설정을 분리해야 합니다.
 
-특히 **기존 Dockerfile은 여전히 Weblings 디스코드 봇을 실행합니다.** `index.html`을 웹으로 공개하려면 정적 호스팅을 따로 설정해야 하며, 본 변경이 Railway 배포를 자동으로 Drawing Chat으로 바꾸지는 않습니다.
+이전 정적 HTML 시안은 `drawing-chat/index.html`에 참고용으로 보존했습니다. 메인 개발 경로는 이제 `app/` 및 `components/`입니다.
