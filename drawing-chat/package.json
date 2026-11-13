@@ -1,0 +1,10 @@
+{
+  "name": "drawing-chat-subdirectory",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Run the root Drawing Chat preview from this folder",
+  "scripts": {
+    "dev": "npm --prefix .. run dev",
+    "start": "npm --prefix .. run dev"
+  }
+}
