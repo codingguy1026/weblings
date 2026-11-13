@@ -16,3 +16,21 @@ html,body{height:100%;}
 .reset-button{margin-top:18px}
 .notice p{margin:8px 0 0}
 .search input[type='search']::-webkit-search-cancel-button{cursor:pointer}
+
+
+/* Drawing ID: independent account panel, separate from demo chat data. */
+.drawing-id-panel{margin:0 0 16px;border:1px solid var(--line);border-radius:17px;padding:20px;background:var(--side)}
+.drawing-id-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.drawing-id-panel-head h3{margin:0 0 3px;font-size:15px;font-weight:750}
+.drawing-id-panel-head p{margin:0;color:var(--muted);font-size:12px}
+.drawing-id-emblem{display:grid;place-items:center;width:43px;height:43px;flex:none;border-radius:13px;background:#1b3142;color:#d3ebf2;font-weight:800;font-size:21px;letter-spacing:-1px}
+.drawing-id-help{font-size:13px;line-height:1.7;color:var(--muted);margin:6px 0 15px}
+.drawing-id-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;text-decoration:none}
+.drawing-id-profile{display:flex;gap:12px;align-items:center;margin:15px 0;padding:12px;border-radius:12px;background:var(--paper)}
+.drawing-id-profile strong{font-size:13px}
+.drawing-id-profile p{color:var(--muted);font-size:11px;margin:4px 0 0}
+.drawing-id-user-icon{width:39px;height:39px;flex:none;display:grid;place-items:center;background:var(--soft);color:var(--brand);font-size:15px;border-radius:14px}
+.drawing-id-connected{margin-left:auto;flex:none;color:#267b68;background:#e3f3ed;padding:5px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.drawing-id-disclaimer{font-size:11px;color:var(--muted);line-height:1.7;margin:16px 0 0}
+.secondary:disabled{opacity:.6;cursor:wait}
+@media(max-width:680px){.drawing-id-panel{padding:15px}.drawing-id-link{width:100%}}

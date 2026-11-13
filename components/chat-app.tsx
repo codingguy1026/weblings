@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { contacts, initialMessages, stations, type Message, type Room, type Tab } from '../lib/demo';
+import { DrawingIdPanel, useDrawingIdAuth } from './drawing-id-auth';
 
 const STORAGE_KEY = 'drawing-chat-next-demo-v1';
 type IconName = 'users' | 'chat' | 'hash' | 'more' | 'search' | 'plus' | 'back' | 'send' | 'moon' | 'shield' | 'info';
@@ -54,6 +55,18 @@ export default function ChatApp() {
   const [hydrated, setHydrated] = useState(false);
   const [notice, setNotice] = useState('');
   const messagesRef = useRef<HTMLDivElement>(null);
+  const drawingId = useDrawingIdAuth();
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const result = url.searchParams.get('drawing_id');
+    if (result !== 'connected' && result !== 'failed') return;
+    url.searchParams.delete('drawing_id');
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    setNotice(result === 'connected'
+      ? 'Drawing ID에서 돌아왔어요. 로그인 상태를 확인해 주세요.'
+      : 'Drawing ID 연결에 실패하거나 승인이 거절되었어요. 다시 시도해 주세요.');
+  }, []);
 
   useEffect(() => {
     try {
@@ -154,6 +167,16 @@ export default function ChatApp() {
   }
   const changeTheme = () => setTheme(value => value === 'dark' ? 'light' : 'dark');
 
+  async function signOutDrawingChat() {
+    const ok = await drawingId.signOut();
+    if (ok) {
+      resetDemo();
+      setNotice('Drawing Chat에서 로그아웃했어요. 다른 Drawing 서비스의 세션은 유지됩니다.');
+    } else {
+      setNotice('로그아웃하지 못했어요. 다시 시도해 주세요.');
+    }
+  }
+
   return (
     <div className={'app' + (opened ? ' detail-open' : '')}>
       <nav className="rail" aria-label="주 메뉴">
@@ -166,7 +189,7 @@ export default function ChatApp() {
         ))}
         <div className="rail-spacer" />
         <button type="button" className={tab === 'more' ? 'active' : ''} onClick={() => switchTab('more')} title="더보기" aria-label="더보기"><Icon name="more" /></button>
-        <button type="button" className="avatar" onClick={() => switchTab('more')} aria-label="내 정보">D</button>
+        <button type="button" className="avatar" onClick={() => switchTab('more')} aria-label="Drawing ID 계정 정보" title={drawingId.user?.displayName ?? "Drawing ID"}>{drawingId.user?.displayName.slice(0, 1).toUpperCase() ?? "D"}</button>
       </nav>
 
       <aside className="panel" aria-label={titles[tab] + ' 목록'}>
@@ -253,7 +276,8 @@ export default function ChatApp() {
             <div className="kicker">DRAWING ECOSYSTEM</div><h2 className="hero-title">메신저는 메신저답게.</h2>
             <p className="intro">친구, 채팅, Station을 단순하게 분리한 Drawing Chat 디자인입니다.</p>
             <div className="feature"><Icon name="moon" /><div className="feature-main"><h3>화면 테마</h3><p>클래식 라이트 / 다크</p></div><button className="secondary" type="button" onClick={changeTheme}>{theme === 'dark' ? '라이트로' : '다크로'}</button></div>
-            <div className="notice"><strong>시제품 안내</strong><p>Drawing ID 로그인, 실시간 메시지, 사용자 동기화, 신고, 푸시 알림, 종단간 암호화는 아직 구현되지 않았습니다. 가상의 친구와 메시지만 있으며 입력은 브라우저에만 저장됩니다. 개인정보나 비밀번호를 입력하지 마세요.</p></div>
+            <DrawingIdPanel auth={drawingId} onSignOut={() => { void signOutDrawingChat(); }} />
+            <div className="notice"><strong>채팅 UI 시제품 안내</strong><p>로그인한 계정과 관계없이 친구와 Station 및 메시지는 예시 데이터입니다. 실시간 통신, 동기화, 신고, 푸시 알림, 종단간 암호화는 아직 구현되지 않았습니다. 개인정보를 입력하지 마세요.</p></div>
             <button className="secondary reset-button" type="button" onClick={resetDemo}>데모 메시지 초기화</button>
           </div>
         ) : (
