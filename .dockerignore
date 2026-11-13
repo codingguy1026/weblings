@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+.next
+.env
+.env.*
+.venv
+__pycache__
+*.pyc
+data
+coverage
+npm-debug.log*
+.DS_Store
