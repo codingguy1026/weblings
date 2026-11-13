@@ -1,7 +1,17 @@
-FROM python:3.12-slim
+# Drawing Chat · Next.js production container
+FROM node:22-alpine AS builder
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package.json ./
+RUN npm install --no-audit --no-fund
 COPY . .
-ENV PYTHONUNBUFFERED=1
-CMD ["python", "bot.py"]
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]
